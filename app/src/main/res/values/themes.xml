@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="Theme.ZyvoTube" parent="Theme.Material3.DayNight.NoActionBar" />
+    <style name="Theme.VibeTube" parent="Theme.ZyvoTube" />
+
+    <!-- Modern SplashScreen theme -->
+    <style name="Theme.App.Starting" parent="Theme.SplashScreen">
+        <!-- Background color of the splash screen -->
+        <item name="windowSplashScreenBackground">#FFFFFF</item>
+        <!-- Icon to be displayed -->
+        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_splash_animated</item>
+        <!-- Duration the splash screen will be displayed -->
+        <item name="windowSplashScreenAnimationDuration">800</item>
+        <!-- The theme to use after the splash screen is finished -->
+        <item name="postSplashScreenTheme">@style/Theme.ZyvoTube</item>
+    </style>
+</resources>

@@ -1,0 +1,6 @@
+{
+  "name": "ZyvoTube",
+  "description": "ZyvoTube is a premium, feature-rich YouTube client with a native custom recommendation engine, local storage, background play, and offline download capabilities. Developed by Rahul Haldar.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

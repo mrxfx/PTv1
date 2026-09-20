@@ -1,0 +1,19 @@
+/*
+ * VibeTube
+ * Copyright (C) 2026 VibeTube contributors
+ *
+ * Licensed under GPL-3.0-or-later
+ */
+package com.rahul.vibetube1.data.local
+
+import androidx.room.Entity
+import androidx.room.PrimaryKey
+
+@Entity(tableName = "playlist_favorites")
+data class PlaylistFavoriteEntity(
+    @PrimaryKey val playlistId: String,
+    val title: String,
+    val thumbnailUrl: String,
+    val uploaderName: String,
+    val timestamp: Long = System.currentTimeMillis()
+)

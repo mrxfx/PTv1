@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<animated-vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:drawable="@drawable/ic_splash_logo">
+    <target
+        android:name="logo_group"
+        android:animation="@animator/splash_scale_anim" />
+    <target
+        android:name="waves_path"
+        android:animation="@animator/splash_alpha_anim" />
+</animated-vector>

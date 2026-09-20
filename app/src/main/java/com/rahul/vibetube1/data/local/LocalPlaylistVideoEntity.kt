@@ -1,0 +1,38 @@
+/*
+ * VibeTube
+ * Copyright (C) 2026 VibeTube contributors
+ *
+ * Licensed under GPL-3.0-or-later
+ */
+package com.rahul.vibetube1.data.local
+
+import androidx.room.Entity
+import androidx.room.ForeignKey
+import androidx.room.Index
+import androidx.room.PrimaryKey
+
+@Entity(
+    tableName = "local_playlist_videos",
+    foreignKeys = [
+        ForeignKey(
+            entity = LocalPlaylistEntity::class,
+            parentColumns = ["id"],
+            childColumns = ["playlistId"],
+            onDelete = ForeignKey.CASCADE
+        )
+    ],
+    indices = [
+        Index("playlistId"),
+        Index(value = ["playlistId", "videoId"], unique = true)
+    ]
+)
+data class LocalPlaylistVideoEntity(
+    @PrimaryKey(autoGenerate = true) val id: Int = 0,
+    val playlistId: Int,
+    val videoId: String,
+    val title: String,
+    val thumbnailUrl: String,
+    val uploaderName: String,
+    val duration: Long,
+    val addedAt: Long = System.currentTimeMillis()
+)

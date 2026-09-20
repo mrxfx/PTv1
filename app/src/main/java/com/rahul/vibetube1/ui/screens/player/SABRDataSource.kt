@@ -1,0 +1,140 @@
+/*
+ * VibeTube
+ * Copyright (C) 2026 VibeTube contributors
+ *
+ * Licensed under GPL-3.0-or-later
+ */
+package com.rahul.vibetube1.ui.screens.player
+
+import android.net.Uri
+import androidx.media3.common.C
+import androidx.media3.common.util.UnstableApi
+import androidx.media3.datasource.DataSource
+import androidx.media3.datasource.DataSpec
+import androidx.media3.datasource.TransferListener
+import androidx.media3.exoplayer.upstream.BandwidthMeter
+import com.rahul.vibetube1.utils.PTLog
+
+/**
+ * High-performance Chunked Adaptive Streaming DataSource (SABR Proxy)
+ * Intercepts requests and loads media in small byte-range chunks for resilience.
+ */
+@UnstableApi
+class SABRDataSource(
+    private val upstream: DataSource,
+    private val bandwidthMeter: BandwidthMeter
+) : DataSource {
+
+    private var currentDataSpec: DataSpec? = null
+    private var opened = false
+    private var bytesRemaining = 0L
+    private var currentPosition = 0L
+
+    private fun calculateDynamicChunkSize(): Long {
+        val bitrate = bandwidthMeter.bitrateEstimate
+        
+        // If this is the VERY FIRST chunk of a new open, use a small 256KB chunk for Fast First Frame
+        if (currentPosition == (currentDataSpec?.position ?: 0L)) {
+            return 256 * 1024L
+        }
+
+        return when {
+            bitrate >= 5_000_000L -> 2_500 * 1024L // 2.5 MB for high-bitrate / fast connections
+            bitrate >= 2_000_000L -> 1_500 * 1024L // 1.5 MB for medium connections
+            else -> 512 * 1024L                   // 512 KB for low-bitrate / slow connections
+        }
+    }
+
+    override fun addTransferListener(transferListener: TransferListener) {
+        upstream.addTransferListener(transferListener)
+    }
+
+    override fun open(dataSpec: DataSpec): Long {
+        currentDataSpec = dataSpec
+        currentPosition = dataSpec.position
+        bytesRemaining = if (dataSpec.length != C.LENGTH_UNSET.toLong()) dataSpec.length else C.LENGTH_UNSET.toLong()
+        
+        opened = true
+        
+        // Initial chunk open
+        openNextChunk()
+        
+        return bytesRemaining
+    }
+
+    private fun openNextChunk() {
+        val dataSpec = currentDataSpec ?: return
+        
+        // Resilience: Do not attempt to open a chunk if no bytes are remaining
+        if (bytesRemaining != C.LENGTH_UNSET.toLong() && bytesRemaining <= 0) {
+            return
+        }
+
+        val chunkSize = calculateDynamicChunkSize()
+        val chunkLength = if (bytesRemaining == C.LENGTH_UNSET.toLong()) {
+            chunkSize
+        } else {
+            chunkSize.coerceAtMost(bytesRemaining)
+        }
+
+        if (chunkLength <= 0 && bytesRemaining != C.LENGTH_UNSET.toLong()) return
+
+        val chunkSpec = dataSpec.buildUpon()
+            .setPosition(currentPosition)
+            .setLength(chunkLength)
+            .build()
+
+        try {
+            upstream.close()
+            upstream.open(chunkSpec)
+            PTLog.d("SABRDataSource", "Opening chunk at $currentPosition, length $chunkLength. Bitrate: ${bandwidthMeter.bitrateEstimate}")
+        } catch (e: Exception) {
+            PTLog.e("SABRDataSource", "Failed to open chunk", e)
+            throw e
+        }
+    }
+
+    override fun read(buffer: ByteArray, offset: Int, length: Int): Int {
+        if (!opened) return C.RESULT_END_OF_INPUT
+
+        var bytesRead = upstream.read(buffer, offset, length)
+        
+        if (bytesRead == C.RESULT_END_OF_INPUT) {
+            // Chunk finished, check if we need to open next one
+            if (bytesRemaining != C.LENGTH_UNSET.toLong() && bytesRemaining <= 0) {
+                return C.RESULT_END_OF_INPUT
+            }
+            
+            openNextChunk()
+            bytesRead = upstream.read(buffer, offset, length)
+        }
+
+        if (bytesRead != C.RESULT_END_OF_INPUT) {
+            currentPosition += bytesRead
+            if (bytesRemaining != C.LENGTH_UNSET.toLong()) {
+                bytesRemaining -= bytesRead
+            }
+        }
+
+        return bytesRead
+    }
+
+    override fun getUri(): Uri? = upstream.getUri()
+
+    override fun close() {
+        if (opened) {
+            opened = false
+            upstream.close()
+        }
+    }
+}
+
+@UnstableApi
+class SABRDataSourceFactory(
+    private val baseFactory: DataSource.Factory,
+    private val bandwidthMeter: BandwidthMeter
+) : DataSource.Factory {
+    override fun createDataSource(): DataSource {
+        return SABRDataSource(baseFactory.createDataSource(), bandwidthMeter)
+    }
+}

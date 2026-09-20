@@ -1,0 +1,35 @@
+/*
+ * VibeTube
+ * Copyright (C) 2026 VibeTube contributors
+ *
+ * Licensed under GPL-3.0-or-later
+ */
+package com.rahul.vibetube1.ui.theme
+
+import androidx.compose.ui.graphics.Color
+
+// Primary Branding
+val ZyvoTubeRed = Color(0xFFE50914)
+val VibeTubeRed = ZyvoTubeRed
+val YoutubeRed = ZyvoTubeRed
+val DarkRed = Color(0xFFB90000)
+
+// Light Theme Colors
+val LightBackground = Color(0xFFFFFFFF)
+val LightSurface = Color(0xFFF9F9F9)
+val LightOnSurface = Color(0xFF0F0F0F)
+val LightOnSurfaceVariant = Color(0xFF606060)
+
+// Dark Theme Colors (Deep Dark/OLED)
+val DarkBackground = Color(0xFF0F0F0F)
+val DarkSurface = Color(0xFF1E1E1E)
+val DarkOnSurface = Color(0xFFFFFFFF)
+val DarkOnSurfaceVariant = Color(0xFFAAAAAA)
+
+// Special Colors
+val IncognitoPurple = Color(0xFF673AB7)
+val OnlineGreen = Color(0xFF2E7D32)
+
+// Standard Alpha for Glass/Surface effects
+const val GlassAlpha = 0.90f
+const val ScrimAlpha = 0.4f

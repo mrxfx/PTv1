@@ -1,0 +1,16 @@
+*.iml
+.gradle
+/local.properties
+.DS_Store
+/build
+/captures
+.externalNativeBuild
+.cxx
+
+# Android Studio / IntelliJ IDEA
+/.idea/
+
+# Keystores & Signing Keys (Never commit production release keys)
+*.jks
+*.keystore
+!debug.keystore

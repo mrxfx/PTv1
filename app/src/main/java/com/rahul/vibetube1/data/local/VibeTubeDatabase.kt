@@ -1,0 +1,46 @@
+/*
+ * VibeTube
+ * Copyright (C) 2026 VibeTube contributors
+ *
+ * Licensed under GPL-3.0-or-later
+ */
+package com.rahul.vibetube1.data.local
+
+import androidx.room.Database
+import androidx.room.RoomDatabase
+import androidx.room.TypeConverters
+
+@Database(
+    entities = [
+        DownloadEntity::class,
+        HistoryEntity::class,
+        FavoriteEntity::class,
+        SubscriptionEntity::class,
+        SearchHistoryEntity::class,
+        PlaylistFavoriteEntity::class,
+        UserInterestEntity::class,
+        BlacklistEntity::class,
+        LocalPlaylistEntity::class,
+        LocalPlaylistVideoEntity::class,
+        FeedCacheEntity::class,
+        DownloadMissionEntity::class,
+        DownloadChunkEntity::class
+    ],
+    version = 17
+)
+@TypeConverters(Converters::class)
+abstract class VibeTubeDatabase : RoomDatabase() {
+    abstract fun downloadDao(): DownloadDao
+    abstract fun missionDao(): MissionDao
+    abstract fun historyDao(): HistoryDao
+    abstract fun favoriteDao(): FavoriteDao
+    abstract fun playlistFavoriteDao(): PlaylistFavoriteDao
+    abstract fun subscriptionDao(): SubscriptionDao
+    abstract fun searchHistoryDao(): SearchHistoryDao
+    abstract fun userInterestDao(): UserInterestDao
+    abstract fun blacklistDao(): BlacklistDao
+    abstract fun localPlaylistDao(): LocalPlaylistDao
+    abstract fun feedCacheDao(): FeedCacheDao
+}
+
+typealias PlayTubeDatabase = VibeTubeDatabase
